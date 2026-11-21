@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#bd252b">
     <title>@yield('title', 'Vending Machine') · Vending Machine</title>
     <link rel="stylesheet" href="{{ asset('css/app.css') }}?v={{ filemtime(public_path('css/app.css')) }}">
-    <script src="{{ asset('js/app.js') }}" defer></script>
+    <script src="{{ asset('js/app.js') }}?v={{ filemtime(public_path('js/app.js')) }}" defer></script>
 </head>
 <body class="@yield('body-class')">
 <a class="skip-link" href="#main-content">Skip to content</a>
