@@ -2,15 +2,24 @@
 
 Laravel vending machine code test with a Blade website and a versioned REST API. Application data access uses explicit PDO prepared statements, injected repository contracts, and a shared atomic purchase service. No npm install or frontend build is required.
 
+## Live preview
+
+- Website: [https://vending.aungkokokhant.online](https://vending.aungkokokhant.online)
+- Sign in: [https://vending.aungkokokhant.online/login](https://vending.aungkokokhant.online/login)
+- Source code: [aungkokokhant/vending-machine](https://github.com/aungkokokhant/vending-machine)
+- API base URL: `https://vending.aungkokokhant.online/api/v1`
+
+The evaluation instance is deployed over HTTPS. Use the [demo accounts](#demo-accounts) below to sign in as an Admin or User.
+
 ## Current verification
 
 - 57 automated tests pass with 309 assertions using in-memory SQLite; one opt-in MySQL concurrency test is skipped by default.
 - PHP attribute purchase routing has been checked with the route cache enabled.
 - Blade templates compile; PHP formatting and Composer/platform checks are part of the handoff checks.
 - The existing local app at `http://localhost:8000/products` has been verified in Chrome. Admin/User login, logout, Admin product creation/editing/deletion, client price validation, price sorting, User role restrictions, purchases, out-of-stock behavior and private purchase history all passed live browser checks.
-- A temporary `Browser QA Cola` product was created, updated to `6.885` USD, purchased in quantity three for exactly `20.655` USD, then soft-deleted. Its purchase record remains visible to the Demo User. Coke, Pepsi and Water each retain their original stock of 20.
 - The opt-in MySQL concurrency test passed in the local terminal on November 21, 2026: 1 test, 8 assertions, 0.61 seconds. Two PHP processes attempted to purchase the final unit; exactly one succeeded, stock reached zero, and exactly one transaction was stored with the correct price.
-- No server has been configured or deployed. A public preview URL is still required for submission.
+- The deployed HTTPS instance was checked on November 21, 2026: the catalog displays the three required products and prices, price sorting works, the purchase form calculates three Pepsi units as exactly `20.655` USD, and the purchase history page renders. A User receives `403` on an Admin management page, and the API rejects requests without a Bearer token. The `/up` health page reports that the application is running.
+- Admin CRUD, purchase completion and authenticated API flows are covered by the automated tests; those write operations were not repeated against the deployed instance during the final review.
 
 ## Requirements
 
@@ -211,13 +220,15 @@ The check requires a name ending in `_test`, applies migrations to that separate
 
 ## Deployment and submission
 
-Deployment is pending a server with PHP 8.5, MySQL and HTTPS. For one server:
+The application is deployed at [https://vending.aungkokokhant.online](https://vending.aungkokokhant.online) on Ubuntu 24.04 with Nginx, PHP 8.5-FPM and MySQL 8.4 running in Docker. Database migrations and demo seeders completed successfully. The public source repository is [https://github.com/aungkokokhant/vending-machine](https://github.com/aungkokokhant/vending-machine).
+
+For a separate deployment, use the following steps. Ensure `php` resolves to a compatible version; on the current server, use `php8.5` explicitly because the default CLI remains PHP 8.3.
 
 1. Copy the source, including `composer.lock`, to the server and run `composer install --no-dev --optimize-autoloader`.
 2. Configure a server-local `.env`, a fresh application key, MySQL credentials, `APP_ENV=production`, `APP_DEBUG=false`, the HTTPS `APP_URL`, and `SESSION_SECURE_COOKIE=true`.
 3. Configure Nginx/Apache with document root set to this application's `public/` directory and PHP-FPM. Give the service account write access to `storage/` and `bootstrap/cache/`.
 4. Run `php artisan migrate --seed --force --no-interaction` for the evaluation data, then `php artisan config:cache --no-interaction`, `php artisan route:cache --no-interaction`, and `php artisan view:cache --no-interaction`.
 5. Verify Admin/User website flows and token API requests over HTTPS. Run the MySQL concurrency check against the separate test database.
-6. Submit the verified preview URL and source repository/archive. Exclude `.env`, `vendor/`, logs, sessions, caches and local database files from source archives; retain `.env.example`, migrations, tests and the dependency lockfile.
+6. Provide the preview URL and source repository/archive to the evaluator, together with the demo login details. Exclude `.env`, `vendor/`, logs, sessions, caches and local database files from source archives; retain `.env.example`, migrations, tests and the dependency lockfile. Sending the submission is a separate step from deployment.
 
 The application records simulated purchases. Hardware dispensing and payment-gateway integration are outside the PDF's scope.
